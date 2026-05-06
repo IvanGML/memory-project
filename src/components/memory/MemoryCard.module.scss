@@ -1,0 +1,31 @@
+.card {
+  padding: 0 16px;
+  text-align: center;
+}
+
+.from {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.6vw, 34px);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--text);
+  margin: 0 0 32px;
+}
+
+.body {
+  font-family: var(--serif);
+  font-size: clamp(19px, 1.5vw, 22px);
+  line-height: 1.7;
+  color: var(--text);
+  margin: 0;
+  text-wrap: pretty;
+}

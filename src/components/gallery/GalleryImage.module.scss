@@ -1,0 +1,65 @@
+.tile {
+  display: block;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  aspect-ratio: var(--aspect);
+  width: 100%;
+  background: var(--bg-image) center / cover;
+  background-color: var(--photo-bg);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(58, 47, 34, 0.1);
+  transition:
+    transform 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 500ms;
+
+  &.tall {
+    grid-row-end: span 2;
+  }
+
+  &:hover {
+    transform: scale(1.015);
+    box-shadow: 0 8px 32px rgba(58, 47, 34, 0.22);
+
+    .overlay {
+      opacity: 1;
+    }
+
+    .caption {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    rgba(20, 15, 8, 0.35) 100%
+  );
+  opacity: 0;
+  transition: opacity 400ms;
+}
+
+.caption {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  color: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 400ms,
+    transform 400ms;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}

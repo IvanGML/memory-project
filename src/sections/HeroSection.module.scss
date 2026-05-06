@@ -1,0 +1,136 @@
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.1fr);
+  gap: clamp(32px, 6vw, 80px);
+  align-items: center;
+  max-width: 1100px;
+  width: 100%;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.imageCol {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition:
+    opacity 1400ms cubic-bezier(0.4, 0, 0.2, 1) 200ms,
+    transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 200ms;
+
+  &.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.textCol {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 1400ms cubic-bezier(0.4, 0, 0.2, 1) 500ms,
+    transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 500ms;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.image {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  background: url('/assets/hero.jpg') center 18% / cover;
+  box-shadow: 0 12px 60px rgba(58, 47, 34, 0.18);
+  filter: sepia(0.08) contrast(1.02);
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.name {
+  font-family: var(--serif);
+  font-size: clamp(44px, 6.4vw, 80px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0;
+}
+
+.years {
+  margin-top: 20px;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+}
+
+.subtitle {
+  margin: 36px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text);
+  opacity: 0.82;
+  max-width: 420px;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 1400ms ease 1800ms;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  &.visible {
+    opacity: 0.55;
+  }
+}
+
+.scrollHintBar {
+  width: 1px;
+  height: 28px;
+  background: var(--muted);
+  animation: scrollHintPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes scrollHintPulse {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(6px);
+  }
+}

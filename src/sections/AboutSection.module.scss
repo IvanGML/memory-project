@@ -1,0 +1,19 @@
+.section {
+  padding: clamp(100px, 16vh, 180px) 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.inner {
+  max-width: 640px;
+  width: 100%;
+}
+
+.paragraph {
+  font-family: var(--serif);
+  font-size: clamp(18px, 1.45vw, 22px);
+  line-height: 1.75;
+  color: var(--text);
+  margin-bottom: 28px;
+  text-wrap: pretty;
+}

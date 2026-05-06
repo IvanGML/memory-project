@@ -1,0 +1,20 @@
+.label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 44px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.rule {
+  width: 32px;
+  height: 1px;
+  background: var(--muted);
+  opacity: 0.5;
+}
