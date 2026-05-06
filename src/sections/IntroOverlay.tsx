@@ -69,14 +69,7 @@ export default function IntroOverlay({
       })}
     >
       <div className={styles.halo} />
-      <div className={styles.bird}>
-        <img
-          src="/assets/dove.png"
-          alt=""
-          draggable={false}
-          className={styles.birdImage}
-        />
-      </div>
+      <div className={styles.bird} aria-hidden="true" />
 
       <button
         onClick={(e) => {

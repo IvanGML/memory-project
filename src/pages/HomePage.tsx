@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ThemeToggle from '../components/ui/ThemeToggle'
 import { useContent } from '../content/useContent'
 import { useLocalStorageFlag } from '../hooks/useLocalStorageFlag'
 import { INTRO_SEEN_KEY } from '../lib/utils'
@@ -41,6 +42,7 @@ export default function HomePage() {
         <GallerySection content={content} />
         <FinalSection content={content} />
       </main>
+      {!introVisible && <ThemeToggle />}
     </>
   )
 }

@@ -6,6 +6,7 @@ export const clamp = (v: number, mn: number, mx: number) =>
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
 export const INTRO_SEEN_KEY = 'memorial:introSeen'
+export const THEME_KEY = 'memorial:theme'
 
 export const cn = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ')

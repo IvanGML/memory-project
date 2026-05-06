@@ -40,14 +40,17 @@
   transform: translate(-50%, -50%) translateY(var(--bird-y))
     scale(var(--breath)) rotate(var(--bank));
   opacity: var(--bird-op);
-}
-
-.birdImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  user-select: none;
+  background-color: var(--bird-fill);
+  mask-image: url('/assets/dove.png');
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: url('/assets/dove.png');
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
   pointer-events: none;
+  user-select: none;
 }
 
 .skip {

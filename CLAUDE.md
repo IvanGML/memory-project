@@ -39,11 +39,11 @@ No test suite exists yet. Don't add one casually — the planning docs treat tes
 |---|---|---|
 | `pages/` | `HomePage.tsx` | Owns intro lifecycle, hero visibility, and section composition. New routes (e.g. `AdminPage`) would land here. |
 | `sections/` | 7 page-level blocks (Hero, About, Film, Memories, Gallery, Final, IntroOverlay) | Used **once** each. Distinct from `components/`. |
-| `components/ui/` | `Reveal`, `SectionLabel`, `NavArrow` | Generic primitives — reusable anywhere. |
+| `components/ui/` | `Reveal`, `SectionLabel`, `NavArrow`, `ThemeToggle` | Generic primitives — reusable anywhere. `ThemeToggle` is rendered at `HomePage` level outside `<main>`, gated on `!introVisible`. |
 | `components/<feature>/` | `memory/MemoryCard`, `gallery/GalleryImage`, `gallery/Lightbox` | Domain-scoped components co-located by feature. |
 | `content/` | `queryClient.ts`, `useContent.ts` | Data layer — the seam between Query cache and the rest of the app. |
-| `hooks/` | `useLocalStorageFlag.ts` | Custom hooks. |
-| `lib/utils.ts` | `clamp`, `easeOut`, `INTRO_SEEN_KEY`, `cn`, `cssVars` | Non-React helpers + class-name and CSS-variable utilities. |
+| `hooks/` | `useLocalStorageFlag.ts`, `useTheme.ts` | Custom hooks. `useTheme` reads/writes `documentElement.dataset.theme` and persists to `localStorage['memorial:theme']`; the value is pre-resolved by an inline IIFE in `index.html` to avoid FOUC. |
+| `lib/utils.ts` | `clamp`, `easeOut`, `INTRO_SEEN_KEY`, `THEME_KEY`, `cn`, `cssVars` | Non-React helpers + class-name and CSS-variable utilities. localStorage keys live here under the `memorial:` namespace. |
 | `types/content.ts` | `Content`, `Memory`, `GalleryItem`, `FALLBACK` | Shared TS types. |
 | `assets/` | empty (`.gitkeep`) | For **Vite-imported** assets. Content photos do **not** belong here. |
 
@@ -67,11 +67,13 @@ Moving content photos into `src/assets/` would require rewriting every URL in `c
 
 **Keyframes** are co-located with the component that owns them. CSS Modules scopes `@keyframes` names automatically; `animation:` references inside the same module pick up the scoped name. Do not add new global keyframes to `index.css`.
 
+**SVG icons used as `mask-image` must be filled white.** Default `mask-mode: match-source` reads luminance for SVG sources, so a black-filled SVG renders as fully transparent in Firefox and Chrome 120+. PNGs work either way (raster sources read alpha). The displayed colour of a masked icon is controlled by `background-color` on the host element — `var(--text)` for theme-aware icons. Examples: `public/icons/sun.svg`, `public/icons/moon.svg`.
+
 **Type safety.** `typescript-plugin-css-modules` registered in `tsconfig.app.json` gives editor autocomplete and unknown-class warnings; an ambient `declare module '*.module.scss'` in `src/vite-env.d.ts` covers `tsc -b`. **The editor must use the workspace TypeScript** (VS Code/Cursor: "Use Workspace Version") for the plugin to activate.
 
 **Class naming.** Write class names in `camelCase` directly inside `.module.scss` (e.g. `.navArrow`, `.playButton`) so they import as `styles.navArrow` with no `localsConvention` config.
 
-Theme switching uses `data-theme` attribute on `<html>` per Design Foundation §11 (planned, not yet wired). When implementing, set CSS variables under `[data-theme="dark"]` in `index.css`, persist preference in localStorage via `useLocalStorageFlag`.
+Theme switching uses the `data-theme` attribute on `<html>` per Design Foundation §11. The attribute is set before React mounts by an inline IIFE in `index.html` (reads `localStorage['memorial:theme']`, falls back to `prefers-color-scheme`) — this prevents a flash-of-wrong-theme on first paint. Once mounted, `src/hooks/useTheme.ts` owns the in-app state and toggle. Dark-token values live under `[data-theme="dark"]` in `index.css`. The floating toggle button (`src/components/ui/ThemeToggle.tsx`) is rendered at the `HomePage` level outside `<main>` and gated on `!introVisible` so it does not appear during the intro/dove animation; its `z-index: 40` sits below the lightbox (`z-index: 50`), so the lightbox correctly overlays it.
 
 ## Conventions
 
@@ -149,6 +151,21 @@ The journal answers questions CLAUDE.md cannot: rejected alternatives, dead ends
 
 Write entries via the `/journal` skill (`.claude/skills/journal/SKILL.md`). The rule: **one entry per plan**, sealed when the next plan starts. Sealed entries are never edited — if new context contradicts an old entry, write a new entry that references the old one.
 
+**Known limitation:** the `/journal` skill only scans `.claude/plans/plan-*.md`. Plans authored via Claude Code plan-mode land at `~/.claude/plans/<slug>.md` and are invisible to `/journal` (and therefore `/finalize`'s journal gate). Until that's resolved (separate planned work), author or copy plan files into the project's `.claude/plans/` location.
+
+## Project Skills
+
+Custom slash commands live in `.claude/skills/`. Run them by invoking the slash command (e.g. `/finalize`).
+
+| Skill | Purpose |
+|---|---|
+| `/finalize` | Post-implementation gate chain: lint → tsc → pedantic-code-reviewer → build → /journal. Always run before declaring a planned task complete. |
+| `/journal` | Create / update / seal the development-journal entry for the active plan. Looks for `.claude/plans/plan-*.md` (see Known Limitations above). Called automatically as the last gate of `/finalize`. |
+| `/commit` | Create a conventional-commit-formatted commit for current work. Validates against `commitlint.config.js`. Never auto-run by `/finalize`. |
+| `/coding-standards` | Baseline coding conventions referenced by Working Rules. |
+
+Custom agent: `.claude/agents/pedantic-code-reviewer.md` — invoked from `/finalize` Gate 3 with the current `git diff HEAD`.
+
 ## Working Rules
 
 > Baseline coding conventions: `.claude/skills/coding-standards/skill.md`. The rules below are the project-specific layer that augments it.
@@ -157,9 +174,11 @@ Write entries via the `/journal` skill (`.claude/skills/journal/SKILL.md`). The 
 
 2. **Problem-Solving Approach.** Apply KISS / YAGNI / DRY / SOLID. When several strong approaches exist, present them all with tradeoffs so the user can choose. If confidence is below 90%, state assumptions and propose clarifying questions before implementing.
 
-3. **Post-Implementation Review pipeline.** After completing a planned set of changes:
-   `Implement → offer pedantic-code-reviewer agent → fix Critical & Major → defer-or-fix Minor (user decides) → npm run lint → /journal → done.`
-   The reviewer (`.claude/agents/pedantic-code-reviewer.md`) catches architectural/logic/design issues lint can't see. **Lint is the final automated gate**; **`/journal` is the human-readable handover gate** — it writes or updates the journal entry for the active plan so the next session inherits context. Never declare done before both gates pass.
+3. **Post-Implementation pipeline.** After completing a planned set of changes, run `/finalize` (`.claude/skills/finalize/SKILL.md`). It runs five gates in cost-ascending order with a fix-and-retry loop per gate:
+
+   `npm run lint → npx tsc -b → pedantic-code-reviewer agent → npm run build → /journal → done`
+
+   The reviewer (`.claude/agents/pedantic-code-reviewer.md`) catches architectural/logic/design issues automated tools can't see — Critical and Major findings are auto-applied (with a Gate 1+2 re-run to confirm no regression); Minor findings are surfaced for the user to decide per-item. `/journal` is the human-readable handover gate — it writes or updates the journal entry for the active plan so the next session inherits context. **Never declare done before all five gates pass.** `/finalize` does not auto-commit; commit timing remains explicit (use `/commit`).
 
 4. **CLAUDE.md drift check.** After any architecture-significant change (new dep, new layer, new top-level folder, removed convention, new pattern), propose CLAUDE.md updates as part of the same commit. The reviewer should flag drift; if the doc is silently lying about reality, treat it as a Major issue.
 
@@ -169,6 +188,6 @@ Write entries via the `/journal` skill (`.claude/skills/journal/SKILL.md`). The 
 
 ## What's intentionally out of scope (per the MVP plans)
 
-Authentication · admin panel · user-generated content · multi-language UI · real video player (today's `playing` flag only swaps caption text) · timeline · tests · React Query Devtools · theme switcher UI · routing.
+Authentication · admin panel · user-generated content · multi-language UI · real video player (today's `playing` flag only swaps caption text) · timeline · tests · React Query Devtools · routing.
 
 Frontend Spec §15 lists the future extensions; introducing any of them without aligning with the planning docs first will break the project's "content over interface" philosophy.

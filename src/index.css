@@ -7,11 +7,19 @@
   --deep: #3a2f22;
   --halo: #f4ead9;
   --photo-bg: #ede4d4;
+  --bird-fill: #3a2f22;
   --serif: "Fraunces", Georgia, serif;
   --sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-/* [data-theme="dark"] tokens land here in a follow-up plan. */
+[data-theme="dark"] {
+  --bg: #0f0f10;
+  --text: #f2f2f2;
+  --muted: #a1a1a1;
+  --halo: #241d15;
+  --photo-bg: #1a1612;
+  --bird-fill: #f0e6d4;
+}
 
 * { box-sizing: border-box; }
 
