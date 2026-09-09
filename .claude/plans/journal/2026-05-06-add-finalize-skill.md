@@ -3,7 +3,7 @@
 **Date:** 2026-05-06
 **Plan:** plan-add-finalize-skill
 **Commits:** uncommitted at time of writing
-**Status:** Done
+**Status:** Sealed
 
 ## Why
 

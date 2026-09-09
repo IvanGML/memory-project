@@ -4,7 +4,8 @@ Append-only history of how this project arrived at its current state. **CLAUDE.m
 
 | Date | Title | Status | Plan | Commits |
 |---|---|---|---|---|
-| 2026-05-06 | [Add /finalize skill — post-implementation pipeline](journal/2026-05-06-add-finalize-skill.md) | Done | plan-add-finalize-skill | uncommitted |
+| 2026-09-09 | [Adopt harness guardrails — hooks, permissions, intake skill](journal/2026-09-09-adopt-harness-guardrails.md) | Done | plan-adopt-harness-guardrails | uncommitted |
+| 2026-05-06 | [Add /finalize skill — post-implementation pipeline](journal/2026-05-06-add-finalize-skill.md) | Sealed | plan-add-finalize-skill | uncommitted |
 | 2026-05-06 | [Adopt CSS Modules + SCSS for component styling](journal/2026-05-06-adopt-css-modules-scss.md) | Sealed | 1-yes-2-on-misty-giraffe | uncommitted |
 | 2026-05-06 | [Establish development-journal system](journal/2026-05-06-establish-journal-system.md) | Sealed | plan-it-first-majestic-shamir | uncommitted |
 | 2026-05-06 | [Genesis — foundational architecture and tooling](journal/2026-05-06-genesis.md) | Sealed (backfill) | N/A | uncommitted |
