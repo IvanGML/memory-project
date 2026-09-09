@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git blame *)",
+      "Bash(git branch *)",
+      "Bash(git ls-files *)",
+      "Bash(git rev-parse *)",
+      "Bash(git check-attr *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git stash list *)",
+      "Bash(git stash push *)",
+      "Bash(git stash pop *)",
+      "Bash(git stash show *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run build)",
+      "Bash(npm run dev *)",
+      "Bash(npm run preview *)",
+      "Bash(npm ls *)",
+      "Bash(npm view *)",
+      "Bash(npm outdated *)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx vite *)",
+      "Bash(npx lint-staged *)",
+      "Bash(npx commitlint *)",
+      "Bash(ls *)",
+      "Bash(rg *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(bash .claude/hooks/test-hooks.sh *)",
+      "Bash(curl * http://127.0.0.1*)",
+      "Bash(curl * http://localhost*)",
+      "Bash(curl * \"http://127.0.0.1*)",
+      "Bash(curl * \"http://localhost*)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git rebase *)",
+      "Bash(git checkout -- *)",
+      "Bash(git branch -D *)",
+      "Bash(git stash drop *)",
+      "Bash(git stash clear *)",
+      "Bash(npm install *)",
+      "Bash(npm i *)",
+      "Bash(npm ci *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update *)",
+      "Bash(npx husky *)"
+    ],
+    "deny": [
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/id_rsa*)",
+      "Read(./**/credentials*)",
+      "Read(./secrets/**)",
+      "Edit(./.env.local)",
+      "Edit(./.env.*.local)",
+      "Edit(./package-lock.json)",
+      "Edit(./.github/workflows/**)",
+      "Edit(./secrets/**)",
+      "Edit(./**/*.pem)",
+      "Edit(./**/*.key)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git push -f)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(sudo *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-paths.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/gate.sh\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
