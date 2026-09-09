@@ -17,8 +17,13 @@ New deps · new layers · new/removed conventions. Cross-references to CLAUDE.md
 ## Tradeoffs
 What we chose against, and why this won. Capture rejected alternatives so future readers don't relitigate them.
 
+**Explicitly not needed now:** the things the intake ruled out of scope on purpose, so nobody adds them "while we're here".
+
 ## Known limitations / follow-ups
 What we deliberately didn't do; pointers to future plans or open issues.
+
+### Prevention
+Mistakes hit during this plan (red lint/tsc/build, reviewer Critical/Major findings, hook blocks, wrong assumptions) and what the next session should check to avoid repeating each one. One line per item: `symptom → check`. Omit the section only if nothing went wrong.
 
 ---
 

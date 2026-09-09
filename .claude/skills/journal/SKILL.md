@@ -22,9 +22,12 @@ Run in parallel:
 ```bash
 ls .claude/plans/plan-*.md 2>/dev/null
 ls -t .claude/plans/journal/*.md 2>/dev/null | head -3
+ls .claude/plans/session-handoff.md 2>/dev/null
 git log --oneline -10
 git status --short
 ```
+
+If `.claude/plans/session-handoff.md` exists, read it: its *Active Decisions*, *Validation Performed* and *Residual Risks* feed the entry directly. When the entry transitions to `Done` or `Sealed`, delete the handoff file — the plan is closed and the journal now owns the record.
 
 Decide which mode this invocation is in:
 
@@ -45,8 +48,10 @@ Read the active plan file (`.claude/plans/plan-*.md`) and `git log --oneline -20
 - The deps/folders/conventions that changed (`## Architecture impact` source).
 - Any "considered but rejected" alternatives (`## Tradeoffs` source).
 - Any deferred work the plan called out (`## Known limitations` source).
+- What the intake explicitly ruled out (`**Explicitly not needed now**` line under `## Tradeoffs`).
+- Mistakes hit along the way (`### Prevention` source): red `npm run lint` / `npx tsc -b` / `npm run build` runs, pedantic-code-reviewer Critical/Major findings, hook blocks, assumptions that turned out wrong. Record each as `symptom → what to check next time`. Look at the conversation and `git log` for these; do not invent them.
 
-If a section's content is below 80% confidence, ask the user inline rather than guessing. Never fabricate tradeoffs that weren't actually weighed.
+If a section's content is below 80% confidence, ask the user inline rather than guessing. Never fabricate tradeoffs or prevention items that weren't actually encountered.
 
 ---
 
