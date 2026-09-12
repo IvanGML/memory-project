@@ -29,6 +29,7 @@ export default {
         'config',
         'i18n',
         'assets',
+        'auth',
       ],
     ],
     'scope-empty': [2, 'never'],
