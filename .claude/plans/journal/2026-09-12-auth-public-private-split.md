@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-12
 **Plan:** plan-auth-public-private-split
-**Commits:** uncommitted at time of writing
+**Commits:** 21804a1..b33857f
 **Status:** Done
 
 ## Why
