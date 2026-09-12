@@ -3,7 +3,7 @@
 **Date:** 2026-09-12
 **Plan:** plan-auth-public-private-split
 **Commits:** 21804a1..b33857f
-**Status:** Done
+**Status:** Sealed
 
 ## Why
 The site was one vertical scroll with no notion of access. Frontend Spec §15 named "User accounts / Private content" as the next extension, and a Claude Design project (`Auth.dc.html` / `AuthScreen.dc.html`) laid out the doorway: a public Hero with a quiet «Авторизоваться», a three-view modal (login / register / pending review) and a «Выйти» pill on the private page. There is still no backend, so the goal was the *access structure* — routes, guards, a service seam — with login as a formality, so a real provider can drop in later without touching Hero, modal, guards or sections.

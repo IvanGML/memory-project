@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import SignOutButton from '../components/auth/SignOutButton'
-import ThemeToggle from '../components/ui/ThemeToggle'
+import SignOutButton from '../components/auth/SignOutButton/SignOutButton'
+import ThemeToggle from '../components/ui/ThemeToggle/ThemeToggle'
 import { useContent } from '../content/useContent'
-import AboutSection from '../sections/AboutSection'
-import FilmSection from '../sections/FilmSection'
-import FinalSection from '../sections/FinalSection'
-import GallerySection from '../sections/GallerySection'
-import HeroSection from '../sections/HeroSection'
-import IntroOverlay from '../sections/IntroOverlay'
-import MemoriesSection from '../sections/MemoriesSection'
+import AboutSection from '../sections/AboutSection/AboutSection'
+import FilmSection from '../sections/FilmSection/FilmSection'
+import FinalSection from '../sections/FinalSection/FinalSection'
+import GallerySection from '../sections/GallerySection/GallerySection'
+import HeroSection from '../sections/HeroSection/HeroSection'
+import IntroOverlay from '../sections/IntroOverlay/IntroOverlay'
+import MemoriesSection from '../sections/MemoriesSection/MemoriesSection'
 
 const HERO_REVEAL_DELAY_MS = 100
 

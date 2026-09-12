@@ -21,22 +21,23 @@ This is **memory-project** — a small single-page memorial web app (Russian-lan
 - **TypeScript 5.9** in strict mode (`strict`, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `noUncheckedSideEffectImports`)
 - **Vite 8** as the build tool / dev server
 - **ESLint 9** flat config (`eslint.config.js`) with `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`
-- **No CSS framework** — styles are inline `style={{...}}` plus a single `src/index.css` for global theme variables (`--bg`, `--text`, `--muted`, `--serif`, `--sans`, `--halo`, `--photo-bg`) and a few keyframes/classes (`scrollHint`, `fadeIn`, `gallery-overlay`, `gallery-caption`, `nav-arrow`, `play-button`, `replay-intro`, `hero-grid`)
+- **No CSS framework** — CSS Modules + SCSS co-located per component (`X.module.scss`), plus a single `src/index.css` for tokens, resets and the `[data-theme="dark"]` block. Inline `style={{...}}` is only for CSS custom properties via `cssVars()`.
 - **TanStack Query** (`@tanstack/react-query`) is the data layer; `QueryClientProvider` wraps the app in `src/App.tsx`
-- **No state management library**, **no router**, **no test framework** yet
-- **No path aliases** — relative imports only
+- **react-router v7** with two routes (`/` public, `/memory` private) guarded by `PublicOnly` / `RequireAuth`; **no state management library**, **no test framework** yet
+- **No path aliases** — relative imports only. **No `index.ts` barrels** — import the component file (`'../ui/Button/Button'`).
 - Content is loaded via `useContent()` (TanStack Query hook in `src/content/useContent.ts`) which fetches `public/content.json`
 - Static assets live in `public/` (`favicon.svg`, `icons.svg`, `assets/dove.png`, `assets/hero.jpg`, gallery JPEGs)
-- Source layout (post-refactor):
-  - `src/App.tsx` — `QueryClientProvider` shell only
+- Source layout — **folder per component**: every component `X.tsx` lives in `X/` next to its `X.module.scss`; helpers and layer folders stay flat:
+  - `src/App.tsx` — `QueryClientProvider > AuthProvider > BrowserRouter > Routes`
   - `src/main.tsx` — React mount + `StrictMode`
-  - `src/pages/` — `HomePage.tsx` (composition root)
-  - `src/sections/` — 7 page-level blocks (`IntroOverlay`, `HeroSection`, `AboutSection`, `FilmSection`, `MemoriesSection`, `GallerySection`, `FinalSection`)
-  - `src/components/ui/` — generic primitives (`Reveal`, `SectionLabel`, `NavArrow`)
-  - `src/components/<feature>/` — domain components (`memory/MemoryCard`, `gallery/GalleryImage`, `gallery/Lightbox`)
+  - `src/pages/` — `HomePage.tsx` (composition root for both routes, `variant: 'public' | 'private'`)
+  - `src/auth/` — access layer (flat): `authService.ts`, `authContext.ts`, `AuthProvider.tsx`, `useAuth.ts`, `RequireAuth.tsx`, `PublicOnly.tsx`, `validators.ts`. No UI here.
+  - `src/sections/<Name>/` — 7 page-level blocks (`IntroOverlay`, `HeroSection`, `AboutSection`, `FilmSection`, `MemoriesSection`, `GallerySection`, `FinalSection`), used once each
+  - `src/components/ui/<Name>/` — all presentational components: primitives (`Button`, `Modal`, `NavArrow`, `Reveal`, `SectionLabel`, `TextField`, `ThemeToggle`) and content units (`MemoryCard`, `GalleryImage`, `Lightbox`)
+  - `src/components/auth/<Name>/` — auth feature UI (`AuthCta`, `AuthModal`, `LoginForm`, `RegisterForm`, `PendingNotice`, `AuthSwitch`, `AuthNote`, `SignOutButton`) + loose helper `errorText.ts`
   - `src/content/` — `queryClient.ts`, `useContent.ts` (data layer)
-  - `src/hooks/` — `useLocalStorageFlag.ts`
-  - `src/lib/utils.ts` — `clamp`, `easeOut`, `INTRO_SEEN_KEY`
+  - `src/hooks/` — `useTheme.ts`
+  - `src/lib/utils.ts` — `clamp`, `easeOut`, `THEME_KEY`, `AUTH_SESSION_KEY`, `cn`, `cssVars`
   - `src/types/content.ts` — `Content`, `Memory`, `GalleryItem`, `FALLBACK`
   - `src/assets/` — empty (`.gitkeep`); reserved for Vite-imported assets only
 

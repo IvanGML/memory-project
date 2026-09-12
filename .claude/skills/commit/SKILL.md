@@ -95,15 +95,16 @@ Map staged file paths to a scope. Use the **single most specific** scope that co
 |---|---|
 | `src/pages/HomePage.tsx` | `home` |
 | `src/pages/admin/**`, `src/components/admin/**` | `admin` |
-| `src/sections/IntroOverlay.tsx` | `intro` |
-| `src/sections/HeroSection.tsx` | `hero` |
-| `src/sections/AboutSection.tsx` | `about` |
-| `src/sections/FilmSection.tsx` | `film` |
-| `src/sections/MemoriesSection.tsx`, `src/components/memory/**` | `memories` |
-| `src/sections/GallerySection.tsx`, `src/components/gallery/**` | `gallery` |
-| `src/sections/FinalSection.tsx` | `final` |
+| `src/sections/IntroOverlay/**` | `intro` |
+| `src/sections/HeroSection/**` | `hero` |
+| `src/sections/AboutSection/**` | `about` |
+| `src/sections/FilmSection/**` | `film` |
+| `src/sections/MemoriesSection/**`, `src/components/ui/MemoryCard/**` | `memories` |
+| `src/sections/GallerySection/**`, `src/components/ui/GalleryImage/**`, `src/components/ui/Lightbox/**` | `gallery` |
+| `src/sections/FinalSection/**` | `final` |
+| `src/components/auth/**`, `src/auth/**` | `auth` |
 | `src/content/**`, `public/content.json` | `content` |
-| `src/components/ui/**` | `ui` |
+| `src/components/ui/**` (anything not matched by a domain row above) | `ui` |
 | `src/hooks/**` | `hooks` |
 | `src/lib/**` | `lib` |
 | `src/types/**` | `types` |
