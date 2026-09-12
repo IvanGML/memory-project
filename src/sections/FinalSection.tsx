@@ -1,16 +1,11 @@
 import Reveal from '../components/ui/Reveal'
-import { useLocalStorageFlag } from '../hooks/useLocalStorageFlag'
-import { INTRO_SEEN_KEY, cn } from '../lib/utils'
+import { cn } from '../lib/utils'
 import type { Content } from '../types/content'
 import styles from './FinalSection.module.scss'
 
 export default function FinalSection({ content }: { content: Content }) {
-  const introSeen = useLocalStorageFlag(INTRO_SEEN_KEY)
-
-  const replay = () => {
-    introSeen.clear()
-    window.location.reload()
-  }
+  // The intro plays on every page load (see HomePage), so a reload is enough.
+  const replay = () => window.location.reload()
 
   return (
     <section className={styles.section}>

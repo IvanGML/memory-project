@@ -3,7 +3,7 @@
 **Date:** 2026-09-09
 **Plan:** plan-adopt-harness-guardrails
 **Commits:** uncommitted at time of writing
-**Status:** Done
+**Status:** Sealed
 
 ## Why
 A temporary local copy of the Cactus Blueprint Harness (never tracked, deleted after this plan) was analysed to see what a solo Windows developer could borrow. Before this plan the project had no deterministic safety boundary: global `defaultMode: auto`, no `.claude/settings.json`, no hooks, and verification happened only when someone remembered `/finalize`. Working Rule 1 demanded clarification but gave no method for it. Sessions that stopped mid-plan left the next one to reconstruct state from `git diff`.

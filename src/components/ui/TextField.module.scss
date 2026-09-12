@@ -1,0 +1,64 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.control {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 200ms ease;
+
+  &::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--muted);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--accent-warm);
+  }
+
+  @media (max-width: 720px) {
+    min-height: 52px;
+    font-size: 16px; // ≥16px keeps iOS Safari from zooming into the field
+  }
+}
+
+.textarea {
+  min-height: 108px;
+  padding: 12px 14px;
+  resize: vertical;
+
+  @media (max-width: 720px) {
+    min-height: 136px;
+  }
+}
+
+.error {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--accent-warm);
+}

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
+import SignOutButton from '../components/auth/SignOutButton'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import { useContent } from '../content/useContent'
-import { useLocalStorageFlag } from '../hooks/useLocalStorageFlag'
-import { INTRO_SEEN_KEY } from '../lib/utils'
 import AboutSection from '../sections/AboutSection'
 import FilmSection from '../sections/FilmSection'
 import FinalSection from '../sections/FinalSection'
@@ -13,11 +12,23 @@ import MemoriesSection from '../sections/MemoriesSection'
 
 const HERO_REVEAL_DELAY_MS = 100
 
-export default function HomePage() {
+/**
+ * The intro plays once per page load — on every reload of `/` or `/memory`,
+ * but not again when the router swaps one variant of this page for the
+ * other (login, logout). A module-level flag lives exactly that long.
+ */
+let introPlayedThisLoad = false
+
+/**
+ * `public`  — `/`: Intro + Hero with the auth doorway, nothing below.
+ * `private` — `/memory`: Intro + Hero + the full memory space.
+ * Route guards in `App.tsx` decide which one renders; this page only lays out.
+ */
+export default function HomePage({ variant }: { variant: 'public' | 'private' }) {
   const { data: content } = useContent()
-  const introSeen = useLocalStorageFlag(INTRO_SEEN_KEY)
-  const [introVisible, setIntroVisible] = useState(!introSeen.value)
-  const [heroVisible, setHeroVisible] = useState(introSeen.value)
+  const [introVisible, setIntroVisible] = useState(!introPlayedThisLoad)
+  const [heroVisible, setHeroVisible] = useState(introPlayedThisLoad)
+  const isPrivate = variant === 'private'
 
   useEffect(() => {
     if (content) document.title = `${content.name} — в память`
@@ -26,7 +37,7 @@ export default function HomePage() {
   if (!content) return null
 
   const onIntroComplete = () => {
-    introSeen.set()
+    introPlayedThisLoad = true
     setIntroVisible(false)
     setTimeout(() => setHeroVisible(true), HERO_REVEAL_DELAY_MS)
   }
@@ -35,13 +46,18 @@ export default function HomePage() {
     <>
       {introVisible && <IntroOverlay onComplete={onIntroComplete} ui={content.ui} />}
       <main>
-        <HeroSection content={content} visible={heroVisible} />
-        <AboutSection content={content} />
-        <FilmSection content={content} />
-        <MemoriesSection content={content} />
-        <GallerySection content={content} />
-        <FinalSection content={content} />
+        <HeroSection content={content} visible={heroVisible} variant={variant} />
+        {isPrivate && (
+          <>
+            <AboutSection content={content} />
+            <FilmSection content={content} />
+            <MemoriesSection content={content} />
+            <GallerySection content={content} />
+            <FinalSection content={content} />
+          </>
+        )}
       </main>
+      {!introVisible && isPrivate && <SignOutButton ui={content.ui} />}
       {!introVisible && <ThemeToggle />}
     </>
   )

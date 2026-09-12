@@ -1,0 +1,33 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding-top: 48px; // minimum breathing room below the hero grid
+  opacity: 0;
+  // Opacity only — a transform here would make this box the containing
+  // block for the fixed-position modal rendered next to it.
+  transition: opacity 1400ms ease 1800ms;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.rule {
+  width: 1px;
+  height: 40px;
+  background: var(--muted);
+  opacity: 0.3;
+
+  @media (max-width: 720px) {
+    height: 28px;
+  }
+}
+
+// TEMP: QA entry points, see AuthCta.tsx
+.devLinks {
+  display: flex;
+  gap: 12px;
+  margin-top: -6px;
+}

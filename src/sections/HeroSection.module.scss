@@ -5,6 +5,30 @@
   justify-content: center;
   padding: 80px 24px;
   position: relative;
+
+  // Public doorway: one screen — grid centred in the free space, the auth
+  // footer sits at the bottom. Never add transform/filter here: the auth
+  // modal is a fixed-position descendant.
+  &.public {
+    min-height: 100svh;
+    flex-direction: column;
+    padding-bottom: 32px;
+
+    .grid {
+      margin: auto 0;
+    }
+
+    .image {
+      max-width: 416px;
+    }
+
+    @media (max-width: 720px) {
+      .image {
+        max-width: 240px;
+        margin: 0 auto;
+      }
+    }
+  }
 }
 
 .grid {

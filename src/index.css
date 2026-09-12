@@ -8,6 +8,8 @@
   --halo: #f4ead9;
   --photo-bg: #ede4d4;
   --bird-fill: #3a2f22;
+  --line: rgba(45, 36, 32, 0.2);
+  --scrim: rgba(26, 20, 12, 0.42);
   --serif: "Fraunces", Georgia, serif;
   --sans: "Inter", system-ui, -apple-system, sans-serif;
 }
@@ -19,6 +21,8 @@
   --halo: #241d15;
   --photo-bg: #1a1612;
   --bird-fill: #f0e6d4;
+  --line: rgba(242, 242, 242, 0.22);
+  --scrim: rgba(0, 0, 0, 0.66);
 }
 
 * { box-sizing: border-box; }
@@ -38,7 +42,7 @@ body {
 }
 
 main { display: block; }
-button { font-family: inherit; }
+button, input, textarea { font-family: inherit; }
 
 ::selection {
   background: var(--accent-warm);

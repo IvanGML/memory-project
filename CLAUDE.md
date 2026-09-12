@@ -29,23 +29,32 @@ No test suite exists yet. Don't add one casually — the planning docs treat tes
 
 ## Architecture
 
-**SPA, no router.** Frontend Spec §3 explicitly forbids multi-page routing for MVP. The whole experience is one vertical scroll. `src/App.tsx` is just a `QueryClientProvider` shell around `pages/HomePage.tsx`, which composes the seven page sections.
+**SPA with two routes.** Frontend Spec §3 forbade routing for the MVP; the auth phase (Frontend Spec §15 "User accounts / Private content", journal entry `2026-09-12-auth-public-private-split`) supersedes that with `react-router` v7 (imports from `'react-router'`; v8 needs React ≥ 19.2.7, which this project does not have yet). `src/App.tsx` is `QueryClientProvider > AuthProvider > BrowserRouter > Routes`:
+
+- `/` — public doorway: Intro + Hero + the «Авторизоваться» footer. Wrapped in `PublicOnly` (authenticated users bounce to `/memory`).
+- `/memory` — the full vertical experience. Wrapped in `RequireAuth` (unauthenticated users bounce to `/`; private sections are never rendered).
+- `*` → `/`.
+
+Both routes render the same `pages/HomePage.tsx` with a `variant` prop, so intro lifecycle and Hero are never duplicated. There is still no navigation menu — the experience inside `/memory` stays one vertical scroll. Static hosting needs a history fallback (`/* → /index.html 200`); `vite dev`/`preview` handle it out of the box.
+
+**Fake auth.** `src/auth/authService.ts` is the seam: an `AuthService` interface plus a mock implementation over `localStorage['memorial:authUser']`. Login is a formality (any pair that passes form validation is accepted), registration persists nothing and lands on the «Заявка на рассмотрении» view. `AuthProvider` (React context, mounted in `App.tsx`) exposes `user / login / register / logout` via `useAuth()`; guards, `AuthModal` and `SignOutButton` depend only on that context. Replacing the mock with a real provider touches `authService.ts` only. The two small «тест: …» buttons under the CTA are TEMP entry points into the register/pending views until a backend exists.
 
 **Static-content backend.** There is no API. `public/content.json` holds every piece of dynamic content (name, years, about paragraphs, memories, gallery items, final lines, all UI strings under `content.ui`). It is fetched once at boot through `src/content/useContent.ts` (TanStack Query, `staleTime: Infinity`, `refetchOnWindowFocus: false`). When a real backend lands, only `useContent.ts` changes.
 
-**State lives where it's used.** Almost no shared state exists. Carousel index, lightbox index, video-playing flag — all local to their section. The only persisted flag is `introSeen` in localStorage, owned by `hooks/useLocalStorageFlag.ts`. **Do not introduce Zustand/Redux/Jotai/MobX** unless a concrete cross-tree need appears (e.g. theme switcher, admin edit-mode, auth).
+**State lives where it's used.** Almost no shared state exists. Carousel index, lightbox index, video-playing flag, auth-modal view — all local to their section/component. The only cross-tree state is the auth session (`src/auth/AuthProvider.tsx`, React context). Persisted keys: `memorial:theme` (`hooks/useTheme.ts`) and `memorial:authUser` (`auth/authService.ts`). The intro is **not** persisted: it plays on every page load of `/` or `/memory` and is suppressed only for the client-side route swap after login/logout, via a module-level flag in `pages/HomePage.tsx`. **Do not introduce Zustand/Redux/Jotai/MobX** unless a concrete cross-tree need appears beyond what context already covers (e.g. admin edit-mode).
 
 ### Folder layout (`src/`)
 
 | Folder | Contains | Notes |
 |---|---|---|
-| `pages/` | `HomePage.tsx` | Owns intro lifecycle, hero visibility, and section composition. New routes (e.g. `AdminPage`) would land here. |
+| `pages/` | `HomePage.tsx` | Owns intro lifecycle, hero visibility, and section composition for both routes (`variant: 'public' \| 'private'`). New routes (e.g. `AdminPage`) would land here. |
+| `auth/` | `authService.ts`, `authContext.ts`, `AuthProvider.tsx`, `useAuth.ts`, `RequireAuth.tsx`, `PublicOnly.tsx`, `validators.ts` | The access layer. Service interface + mock, context/provider/hook (split across files for `react-refresh/only-export-components`), route guards, pure form validators. No UI here. |
 | `sections/` | 7 page-level blocks (Hero, About, Film, Memories, Gallery, Final, IntroOverlay) | Used **once** each. Distinct from `components/`. |
-| `components/ui/` | `Reveal`, `SectionLabel`, `NavArrow`, `ThemeToggle` | Generic primitives — reusable anywhere. `ThemeToggle` is rendered at `HomePage` level outside `<main>`, gated on `!introVisible`. |
-| `components/<feature>/` | `memory/MemoryCard`, `gallery/GalleryImage`, `gallery/Lightbox` | Domain-scoped components co-located by feature. |
+| `components/ui/` | `Reveal`, `SectionLabel`, `NavArrow`, `ThemeToggle`, `Button`, `TextField`, `Modal` (+ `ModalHeader`/`ModalBody`/`ModalFooter`) | Generic primitives — reusable anywhere. `ThemeToggle` is rendered at `HomePage` level outside `<main>`, gated on `!introVisible`. `Modal` is a shell with three regions: the card caps at `90vh` and only `ModalBody` scrolls; it handles Escape, scrim click, body scroll lock and initial focus — the opener restores focus on close. |
+| `components/<feature>/` | `memory/MemoryCard`, `gallery/GalleryImage`, `gallery/Lightbox`, `auth/AuthCta`, `auth/AuthModal`, `auth/LoginForm`, `auth/RegisterForm`, `auth/PendingNotice`, `auth/AuthSwitch`, `auth/AuthNote`, `auth/SignOutButton`, `auth/errorText.ts` | Domain-scoped components co-located by feature. `AuthCta` is the public Hero footer and owns the modal state; `AuthModal` keeps one `Modal` mounted and switches its content between the three views. |
 | `content/` | `queryClient.ts`, `useContent.ts` | Data layer — the seam between Query cache and the rest of the app. |
-| `hooks/` | `useLocalStorageFlag.ts`, `useTheme.ts` | Custom hooks. `useTheme` reads/writes `documentElement.dataset.theme` and persists to `localStorage['memorial:theme']`; the value is pre-resolved by an inline IIFE in `index.html` to avoid FOUC. |
-| `lib/utils.ts` | `clamp`, `easeOut`, `INTRO_SEEN_KEY`, `THEME_KEY`, `cn`, `cssVars` | Non-React helpers + class-name and CSS-variable utilities. localStorage keys live here under the `memorial:` namespace. |
+| `hooks/` | `useTheme.ts` | Custom hooks. `useTheme` reads/writes `documentElement.dataset.theme` and persists to `localStorage['memorial:theme']`; the value is pre-resolved by an inline IIFE in `index.html` to avoid FOUC. |
+| `lib/utils.ts` | `clamp`, `easeOut`, `THEME_KEY`, `AUTH_SESSION_KEY`, `cn`, `cssVars` | Non-React helpers + class-name and CSS-variable utilities. localStorage keys live here under the `memorial:` namespace. |
 | `types/content.ts` | `Content`, `Memory`, `GalleryItem`, `FALLBACK` | Shared TS types. |
 | `assets/` | empty (`.gitkeep`) | For **Vite-imported** assets. Content photos do **not** belong here. |
 
@@ -61,7 +70,7 @@ Moving content photos into `src/assets/` would require rewriting every URL in `c
 
 **CSS Modules + SCSS, co-located per component.** Every component has a sibling `Component.module.scss`, imported as `import styles from './Component.module.scss'` and applied with `className={styles.x}`. SCSS via `sass-embedded` (devDep). SCSS-style nesting only — native CSS nesting is not used, for consistency.
 
-`src/index.css` is the **only** global stylesheet. It contains tokens (`:root` CSS custom properties), the `*` box-sizing reset, `html`/`body`/`main` resets, the `button { font-family: inherit }` rule, `::selection`, and a reserved spot for the future `[data-theme="dark"]` block. **Do not add component styles, hover rules, keyframes, or media queries to `index.css`** — they belong in the relevant `.module.scss`.
+`src/index.css` is the **only** global stylesheet. It contains tokens (`:root` CSS custom properties), the `*` box-sizing reset, `html`/`body`/`main` resets, the `button, input, textarea { font-family: inherit }` reset, `::selection`, and the `[data-theme="dark"]` token block. Tokens include `--line` (hairline borders) and `--scrim` (modal backdrop), both theme-aware. **Do not add component styles, hover rules, keyframes, or media queries to `index.css`** — they belong in the relevant `.module.scss`.
 
 **Class composition.** Use `cn()` from `lib/utils.ts` for conditional classes (e.g. `cn(styles.tile, img.tall && styles.tall)`).
 
@@ -75,7 +84,7 @@ Moving content photos into `src/assets/` would require rewriting every URL in `c
 
 **Class naming.** Write class names in `camelCase` directly inside `.module.scss` (e.g. `.navArrow`, `.playButton`) so they import as `styles.navArrow` with no `localsConvention` config.
 
-Theme switching uses the `data-theme` attribute on `<html>` per Design Foundation §11. The attribute is set before React mounts by an inline IIFE in `index.html` (reads `localStorage['memorial:theme']`, falls back to `prefers-color-scheme`) — this prevents a flash-of-wrong-theme on first paint. Once mounted, `src/hooks/useTheme.ts` owns the in-app state and toggle. Dark-token values live under `[data-theme="dark"]` in `index.css`. The floating toggle button (`src/components/ui/ThemeToggle.tsx`) is rendered at the `HomePage` level outside `<main>` and gated on `!introVisible` so it does not appear during the intro/dove animation; its `z-index: 40` sits below the lightbox (`z-index: 50`), so the lightbox correctly overlays it.
+Theme switching uses the `data-theme` attribute on `<html>` per Design Foundation §11. The attribute is set before React mounts by an inline IIFE in `index.html` (reads `localStorage['memorial:theme']`, falls back to `prefers-color-scheme`) — this prevents a flash-of-wrong-theme on first paint. Once mounted, `src/hooks/useTheme.ts` owns the in-app state and toggle. Dark-token values live under `[data-theme="dark"]` in `index.css`. The floating toggle button (`src/components/ui/ThemeToggle.tsx`) is rendered at the `HomePage` level outside `<main>` and gated on `!introVisible` so it does not appear during the intro/dove animation; its `z-index: 40` sits below the lightbox (`z-index: 50`), so the lightbox correctly overlays it. The full ladder: `ThemeToggle`/`SignOutButton` 40 → `Lightbox` 50 → `Modal` 60 → `IntroOverlay` 100. Never put `transform`/`filter` on the Hero section or `AuthCta` — the auth modal is a `position: fixed` descendant and a transformed ancestor would become its containing block.
 
 ## Conventions
 
@@ -97,7 +106,7 @@ type(scope): description
 - **Scopes (granular):**
   - Section/page level: `home`, `admin`, `intro`, `hero`, `about`, `film`, `memories`, `gallery`, `final`
   - Layer level: `content`, `ui`, `hooks`, `lib`, `types`
-  - Cross-cutting: `global`, `deps`, `config`, `i18n`, `assets`
+  - Cross-cutting: `global`, `deps`, `config`, `i18n`, `assets`, `auth`
 - **Subject rules:** imperative, first word lowercase, no trailing period, header ≤ 100 chars. Mid-sentence capitals are allowed for code identifiers and proper names (e.g. `useContent`, `Escape`); banned cases are sentence-case starts, Title Case, PascalCase, and ALL CAPS.
 - **Scope is required** (`scope-empty: never`). If a needed scope isn't in the list, add it to `commitlint.config.js` deliberately — never invent ad-hoc scopes.
 - Optional ticket id may be inserted after the colon: `feat(memories): #123 pause auto-advance`.
@@ -216,6 +225,6 @@ Custom agent: `.claude/agents/pedantic-code-reviewer.md` — invoked from `/fina
 
 ## What's intentionally out of scope (per the MVP plans)
 
-Authentication · admin panel · user-generated content · multi-language UI · real video player (today's `playing` flag only swaps caption text) · timeline · tests · React Query Devtools · routing.
+Real authentication backend (today's login is a formality over localStorage) · admin panel · user-generated content · multi-language UI · real video player (today's `playing` flag only swaps caption text) · timeline · tests · React Query Devtools · navigation menus (the two routes are an access boundary, not navigation).
 
 Frontend Spec §15 lists the future extensions; introducing any of them without aligning with the planning docs first will break the project's "content over interface" philosophy.

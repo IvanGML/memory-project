@@ -1,3 +1,4 @@
+import AuthCta from '../components/auth/AuthCta'
 import { cn } from '../lib/utils'
 import type { Content } from '../types/content'
 import styles from './HeroSection.module.scss'
@@ -20,12 +21,16 @@ function ScrollHint({
 export default function HeroSection({
   content,
   visible,
+  variant,
 }: {
   content: Content
   visible: boolean
+  /** `public` swaps the scroll hint for the auth doorway and fits one screen. */
+  variant: 'public' | 'private'
 }) {
+  const isPublic = variant === 'public'
   return (
-    <section className={styles.section}>
+    <section className={cn(styles.section, isPublic && styles.public)}>
       <div className={styles.grid}>
         <div className={cn(styles.imageCol, visible && styles.visible)}>
           <div className={styles.image} />
@@ -37,7 +42,11 @@ export default function HeroSection({
           <p className={styles.subtitle}>{content.subtitle}</p>
         </div>
       </div>
-      <ScrollHint visible={visible} ui={content.ui} />
+      {isPublic ? (
+        <AuthCta ui={content.ui} visible={visible} />
+      ) : (
+        <ScrollHint visible={visible} ui={content.ui} />
+      )}
     </section>
   )
 }
